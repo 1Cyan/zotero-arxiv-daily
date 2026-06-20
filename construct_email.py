@@ -274,7 +274,9 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
             server = smtplib.SMTP_SSL(smtp_server, smtp_port)
             server.ehlo()
         except Exception as ssl_error:
-            raise ConnectionError("Failed to establish SMTP connection using both TLS and SSL.") from ssl_error
+            raise ConnectionError(
+                f"Failed to establish SMTP connection to {smtp_server}:{smtp_port} using both TLS and SSL."
+            ) from ssl_error
 
     try:
         server.login(sender, password)

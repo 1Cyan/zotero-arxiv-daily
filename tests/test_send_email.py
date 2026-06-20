@@ -13,17 +13,17 @@ sys.modules.setdefault("tqdm", tqdm_stub)
 
 loguru_stub = types.ModuleType("loguru")
 
-class _Logger:
+class StubLogger:
     def warning(self, *_):
         pass
 
-loguru_stub.logger = _Logger()
+loguru_stub.logger = StubLogger()
 sys.modules.setdefault("loguru", loguru_stub)
 
 from construct_email import send_email
 
 
-class _FakeServer:
+class FakeSmtpServer:
     def __init__(self):
         self.logged_in = False
         self.sent = False
@@ -49,7 +49,7 @@ class _FakeServer:
 
 class SendEmailTests(unittest.TestCase):
     def test_send_email_with_tls(self):
-        server = _FakeServer()
+        server = FakeSmtpServer()
         with patch("construct_email.smtplib.SMTP", return_value=server), patch(
             "construct_email.smtplib.SMTP_SSL"
         ) as smtp_ssl:
@@ -69,8 +69,8 @@ class SendEmailTests(unittest.TestCase):
         self.assertTrue(server.quit_called)
 
     def test_send_email_falls_back_to_ssl(self):
-        tls_server = _FakeServer()
-        ssl_server = _FakeServer()
+        tls_server = FakeSmtpServer()
+        ssl_server = FakeSmtpServer()
 
         def _raise_on_starttls():
             raise RuntimeError("tls not supported")
