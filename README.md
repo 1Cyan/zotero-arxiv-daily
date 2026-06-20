@@ -94,6 +94,9 @@ By default, the main workflow runs on 22:00 UTC everyday. You can change this ti
 ### Local Running
 Supported by [uv](https://github.com/astral-sh/uv), this workflow can easily run on your local device if uv is installed:
 ```bash
+# install local LLM dependency only when USE_LLM_API=0
+uv sync --extra local-llm
+
 # set all the environment variables
 # export ZOTERO_ID=xxxx
 # ...
@@ -101,7 +104,7 @@ cd zotero-arxiv-daily
 uv run main.py
 ```
 > [!IMPORTANT]
-> The workflow will download and run an LLM (Qwen2.5-3B, the file size of which is about 3G). Make sure your network and hardware can handle it.
+> The workflow will download and run an LLM (Qwen2.5-3B, the file size of which is about 3G) only when `USE_LLM_API=0`. Make sure your network and hardware can handle it.
 
 > [!WARNING]
 > Other package managers like pip or conda are not tested. You can still use them to install this workflow because there is a `pyproject.toml`, while potential problems exist.
