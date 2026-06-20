@@ -253,7 +253,7 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
         return formataddr((Header(name, 'utf-8').encode(), addr))
 
     if not smtp_server or smtp_port is None:
-        raise ValueError("SMTP_SERVER and SMTP_PORT must be provided.")
+        raise ValueError("smtp_server and smtp_port must be provided.")
 
     msg = MIMEText(html, 'html', 'utf-8')
     msg['From'] = _format_addr('Github Action <%s>' % sender)
