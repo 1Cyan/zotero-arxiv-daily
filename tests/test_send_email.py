@@ -15,7 +15,7 @@ loguru_stub = types.ModuleType("loguru")
 
 class _Logger:
     def warning(self, *_):
-        return None
+        pass
 
 loguru_stub.logger = _Logger()
 sys.modules.setdefault("loguru", loguru_stub)
@@ -102,6 +102,15 @@ class SendEmailTests(unittest.TestCase):
                 "x",
                 "",
                 587,
+                "<p>hello</p>",
+            )
+        with self.assertRaises(ValueError):
+            send_email(
+                "sender@example.com",
+                "receiver@example.com",
+                "x",
+                "smtp.example.com",
+                None,
                 "<p>hello</p>",
             )
 
