@@ -252,6 +252,9 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
         name, addr = parseaddr(s)
         return formataddr((Header(name, 'utf-8').encode(), addr))
 
+    if not smtp_server or smtp_port is None:
+        raise ValueError("SMTP_SERVER and SMTP_PORT must be provided.")
+
     msg = MIMEText(html, 'html', 'utf-8')
     msg['From'] = _format_addr('Github Action <%s>' % sender)
     msg['To'] = _format_addr('You <%s>' % receiver)
@@ -260,12 +263,20 @@ def send_email(sender:str, receiver:str, password:str,smtp_server:str,smtp_port:
 
     try:
         server = smtplib.SMTP(smtp_server, smtp_port)
+        server.ehlo()
         server.starttls()
-    except Exception as e:
-        logger.warning(f"Failed to use TLS. {e}")
+        server.ehlo()
+    except Exception as tls_error:
+        logger.warning(f"Failed to use TLS. {tls_error}")
         logger.warning(f"Try to use SSL.")
-        server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+        try:
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+            server.ehlo()
+        except Exception as ssl_error:
+            raise ConnectionError("Failed to establish SMTP connection using both TLS and SSL.") from ssl_error
 
-    server.login(sender, password)
-    server.sendmail(sender, [receiver], msg.as_string())
-    server.quit()
+    try:
+        server.login(sender, password)
+        server.sendmail(sender, [receiver], msg.as_string())
+    finally:
+        server.quit()
